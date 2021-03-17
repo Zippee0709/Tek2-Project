@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/c++/",
+                "/usr/include/c++/8",
+                "/usr/include/c++/8/x86_64-redhat-linux",
+                "/home/Zhiwen/Delivery/Epitech2019/C++/cpp_d06_2019/hospital"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+
+## EPITECH PROJECT, 2020
+## undefined
+## File description:
+## main
+##
+
+import sys, os
+
+def printUsage():
+    print("\
+USAGE\n\
+    ./201yams d1 d2 d3 d4 d5 c\n\n\
+DESCRIPTION\n\
+    d1      value of the first die (0 if not thrown)\n\
+    d2      value of the second die (0 if not thrown)\n\
+    d3      value of the third die (0 if not thrown)\n\
+    d4      value of the fourth die (0 if not thrown)\n\
+    d5      value of the fifth die (0 if not thrown)\n\
+    c       expected combination\n")
+
+def factorial(n):
+    res = 1
+    for i in range(1, n + 1):
+        res *= i
+    return res
+
+def combination(number, total):
+    return (factorial(total) / (factorial(number) * factorial(total - number)))
+
+def binomiale(number, total):
+    res = combination(number, total) * pow(1 / 6, number) * pow(5 / 6, total - number)
+    return res
+
+def Probability(nb_to_get, nb_to_find, nb_in_list):
+    res = 0
+    for x in range(nb_to_get - nb_in_list, 5 - nb_in_list + 1):
+        res = res + binomiale(x, 5 - nb_in_list)
+    return res
+
+def foundMultipleNumber(dice, eliminateNumber, startNumber, endNumber): ## Permet de trouver le nombre de dé à relance dans le cas de "Straight"
+    totalNumber = {                    ## Retourne le nombre de dée à relancer
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0
+    }
+    counter = 0
+    for i in range(startNumber, endNumber + 1):
+        for j in range(5):
+            if (dice[j] == i):
+                totalNumber[i] += 1
+    if (totalNumber[eliminateNumber] > 0):
+        counter += totalNumber[6]
+    for x in range(startNumber, endNumber + 1):
+        if (totalNumber[x] > 1):
+            counter += totalNumber[x] - 1
+    return counter
+
+def pair(dice, number):
+    nb_in_list = dice.count(number)
+    if (nb_in_list >= 2):
+        print("Chances to get a {} pair: 100.00%".format(int(number)))
+        return
+    res = Probability(2, number, dice.count(number)) * 100
+    print("Chances to get a {} pair: {:.2f}%".format(int(number), round(res, 2)))
+    return res
+
+def three_of_kind(dice, number):
+    nb_in_list = dice.count(number)
+    if (nb_in_list >= 3):
+        print("Chances to get a {} three-of-a-kind: 100.00%".format(int(number)))
+        return
+    res = Probability(3, number, dice.count(number)) * 100
+    print("Chances to get a {} three-of-a-kind: {:.2f}%".format(int(number), round(res, 2)))
+    return res
+
+def four_of_kind(dice, number):
+    nb_in_list = dice.count(number)
+    if (nb_in_list >= 4):
+        print("Chances to get a {} four-of-a-kind: 100.00%".format(int(number)))
+        return
+    res = Probability(4, number, dice.count(number)) * 100
+    print("Chances to get a {} four-of-a-kind: {:.2f}%".format(int(number), round(res, 2)))
+    return res
+
+def yams(dice, number):
+    nb_in_list = dice.count(number)
+    if (nb_in_list >= 5):
+        print("Chances to get a {} yams: 100.0%".format(int(number)))
+        return
+    res = Probability(5, number, dice.count(number)) * 100
+    print("Chances to get a {} yams: {:.2f}%".format(int(number), round(res, 2)))
+    return res
+
+def full(dice, firstNumber, secondNumber):
+    nb_in_list_first = dice.count(firstNumber)
+    nb_in_list_second = dice.count(secondNumber)
+    if (nb_in_list_first >= 3):
+        resThree = 1
+    else:
+        resThree = combination(3 - nb_in_list_first, 5 - nb_in_list_first - nb_in_list_second)
+    if (nb_in_list_second >= 2):
+        resPair = 1
+    else:
+        resPair = combination(2 - nb_in_list_second, 2 - nb_in_list_second)
+    finalRes = (resThree * resPair) / 6**(5 - nb_in_list_first - nb_in_list_second) * 100
+    print("Chances to get a {} full of {}: {:.2f}%".format(int(firstNumber), int(secondNumber), round(finalRes, 2)))
+    return (finalRes)
+
+def straight(dice, number):
+    if (number < 5):
+        raise ValueError("Straight cannot be less than 5")
+    elif (number == 5):
+        sixNumber = dice.count(6)
+        thrownDiceNumber = foundMultipleNumber(dice, 6, 1, 5) + sixNumber
+    elif (number == 6):
+        oneNumber = dice.count(1)
+        thrownDiceNumber = foundMultipleNumber(dice, 1, 2, 6) + oneNumber
+    res = factorial(thrownDiceNumber) / pow(6, thrownDiceNumber) * 100
+    print("Chances to get a {} straight: {:.2f}%".format(int(number), round(res, 2)))
+    return res
+
+def check_argv():
+    dice = []
+    nb_argv = len(sys.argv) - 1
+    if(nb_argv < 1):
+        raise ValueError("Error: invalid argv, pleaser check -h")
+    if (nb_argv > 1) :
+        for i in range(1, nb_argv):
+            nb = int(sys.argv[i])
+            if (nb >= 0 and nb <= 6):
+                dice.append(nb)
+            else:
+                raise ValueError("Error : the number of dice must be between 1 and 6")
+    for i in range(nb_argv, 6):
+        dice.append(0)
+    return dice
+
+def start_yams():
+    dice = []
+    if (sys.argv[len(sys.argv) - 1].find("_") == -1):
+        raise ValueError("A combination need to be like that : combination_number")
+    find = sys.argv[len(sys.argv) - 1].split("_")
+    if (find[1] == ""):
+        raise ValueError("Error: the combination must be combination_number")
+    combinationType = find[0]
+    combinationNumber = float(find[1])
+    if (combinationType != "full" and len(find) != 2):
+        raise ValueError("Error: this combination take one arg")
+    res = 0.0
+    if (combinationNumber > 6 or combinationNumber < 1):
+        raise ValueError("Combination can't be higher than 6 and lower than 1")
+    dice = check_argv()
+    if (combinationType == "pair"):
+        res = pair(dice, combinationNumber)
+    elif (combinationType == "three"):
+        res = three_of_kind(dice, combinationNumber)
+    elif (combinationType == "four"):
+        res = four_of_kind(dice, combinationNumber)
+    elif (combinationType == "full"):
+        find = sys.argv[len(sys.argv) - 1].split("_")
+        if (len(find) != 3 or find[1] == "" or find[2] == "" or find[1] == find[2]):
+            raise ValueError("Error: The combination of full must be full_number_number")
+        combinationSecondNumber = float(sys.argv[len(sys.argv) - 1].split("_")[2])
+        if (combinationSecondNumber > 6 or combinationSecondNumber < 1):
+            raise ValueError("Combination can't be higher than 6 and lower than 1")
+        res = full(dice, combinationNumber, combinationSecondNumber)
+    elif (combinationType == "straight"):
+        res = straight(dice, combinationNumber) * 100
+    elif (combinationType == "yams"):
+        res = yams(dice, combinationNumber)
+    else:
+        raise ValueError("This combination type does not exist")    
+
+def main():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) == 7):
+        start_yams()
+    else:
+        raise ValueError("Need 6 arguments")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except ValueError as ve:
+        print(ve)
+        sys.exit(84)

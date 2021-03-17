@@ -1,0 +1,145 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 202unsold_2019
+## File description:
+## 202unsold
+##
+
+import sys, os
+
+def printUsage():
+    print("USAGE\n\
+\t./202unsold a b\n\n\
+DESCRIPTION\n\
+\ta\tconstant computed from pas results\n\
+\tb\tconstant computed from pas results\n")
+
+def Error_gestion():
+    if (sys.argv[1].isdigit() == False or sys.argv[2].isdigit() == False):
+        raise ValueError("Error: input must be a positive number")
+    a_constant = int(sys.argv[1])
+    b_constant = int(sys.argv[2])
+    if (a_constant < 50 or b_constant < 50):
+        raise ValueError("Error: input must be greater than 50")
+
+def printAllValue(full_list, x_law_tab, y_law_tab, list_z, list_expected):
+    full_length = len(full_list)
+    y_value = 10
+    y = 0
+    print("------------------------------------------------------------------------------")
+    print("\tX=10\tX=20\tX=30\tX=40\tX=50\tY law")
+    print("Y=",y_value, sep='', end='\t')
+    for i in range(full_length):
+        # print("list length = ", list_length)
+        if (i == 5 or i == 10 or i == 15 or i == 20):
+            print("{:.3f}".format(y_law_tab[y]))
+            y_value += 10
+            y += 1
+            print("Y=",y_value, sep="", end="\t")
+        print("{:.3f}".format(full_list[i]), end='\t')
+    print("{:.3f}".format(y_law_tab[y]))
+    print("X law", end="\t")
+    x_law_length = len(x_law_tab)
+    x_law_sum = 0
+    for i in range(x_law_length):
+        x_law_sum += x_law_tab[i]
+        print("{:.3f}".format(x_law_tab[i]), end="\t")
+    print("{:.3f}".format(x_law_sum))
+    print("------------------------------------------------------------------------------")
+    print("z\t20\t30\t40\t50\t60\t70\t80\t90\t100")
+    print("p(Z=z)\t", end='')
+    full_length = len(list_z)
+    for i in range(full_length - 1):
+        print("{:.3f}".format(list_z[i]), end='\t')
+    print("{:.3f}".format(list_z[i + 1]), end='\n')
+    print("------------------------------------------------------------------------------")
+    print("expected value of X:\t{:.1f}".format(list_expected[0]))
+    print("variance of X:\t\t{:.1f}".format(list_expected[2]))
+    print("expected value of Y:\t{:.1f}".format(list_expected[1]))
+    print("variance of Y:\t\t{:.1f}".format(list_expected[3]))
+    print("expected value of Z:\t{:.1f}".format(list_expected[0] + list_expected[1]))
+    print("variance of Z:\t\t{:.1f}".format(list_expected[2] + list_expected[3]))
+    print("------------------------------------------------------------------------------")
+
+def calc_x_y(a, b):
+    full_list = list()
+    x_law_tab = [0, 0, 0, 0, 0]
+    y_law_tab = [0, 0, 0, 0, 0]
+
+    for y in range(10, 60, 10):
+        y_law = 0
+        x_law = 0
+        for x in range (10, 60, 10):
+            res = ((a - x) * (b - y)) / ((5 * a - 150) * (5 * b - 150))
+            y_law += res
+            x_law += res
+            x_law_iteration = int(x / 10) - 1
+            x_law_tab[x_law_iteration] += res
+            full_list.append(res)
+        y_law_iteration = int(y / 10) - 1
+        y_law_tab[y_law_iteration] += y_law
+    return full_list, x_law_tab, y_law_tab
+
+def calc_z(a, b):
+    res = 0
+    sum = 0
+    list_z = list()
+
+    for z in range(20, 110, 10):
+        sum = 0
+        res = 0
+        for y in range(10, 60, 10):
+            for x in range(10, 60, 10):
+                res = ((a - x) * (b - y)) / ((5 * a - 150) * (5 * b - 150))
+                if (x + y == z and y < 60):
+                    sum += res
+        if (sum < 0):
+            sum = 0
+        list_z.append(sum)
+    return list_z
+
+def calc_expected_value(a, b, full_list, x_law_tab, y_law_tab):
+    first_total = 0
+    second_total = 0
+    list_expected = list()
+
+    for i in range(10, 60, 10):
+        i_iteration = int(i / 10) - 1
+        first_total += x_law_tab[i_iteration] * i
+        second_total += y_law_tab[i_iteration] * i
+    list_expected.append(first_total)
+    list_expected.append(second_total)
+    variante_x = 0
+    variante_y = 0
+    for i in range(1, 6):
+        variante_x += (i * 10 - first_total) * (i * 10 - first_total) * x_law_tab[i - 1]
+        variante_y += (i * 10 - second_total) * (i * 10 - second_total) * y_law_tab[i - 1]
+    list_expected.append(variante_x)
+    list_expected.append(variante_y)
+    return list_expected
+        
+def start_unsold():
+    Error_gestion()
+    a_constant = float(sys.argv[1])
+    b_constant = float(sys.argv[2])
+
+    full_list, x_law_tab, y_law_tab = calc_x_y(a_constant, b_constant)
+    list_z = calc_z(a_constant, b_constant)
+    list_expected = calc_expected_value(a_constant, b_constant, full_list, x_law_tab, y_law_tab)
+    printAllValue(full_list, x_law_tab, y_law_tab, list_z, list_expected)
+
+def main():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) == 3):
+        start_unsold()
+    else:
+        raise ValueError("Error: Need 3 arguments")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except ValueError as ve:
+        print(ve)
+        sys.exit(84)

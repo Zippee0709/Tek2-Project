@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/Zhiwen/Delivery/Epitech2019/C++/OOP_indie_studio_2019/src/game/Map.cpp
+Map.hpp
+/home/Zhiwen/Delivery/Epitech2019/C++/OOP_indie_studio_2019/src/game/Map.hpp
+
+/home/Zhiwen/Delivery/Epitech2019/C++/OOP_indie_studio_2019/src/game/Map.hpp
+map
+-
+stdlib.h
+-
+time.h
+-
+iostream
+-
+

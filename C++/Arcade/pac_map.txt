@@ -1,0 +1,27 @@
+xxxxxxxxxxxxxxxxxxxxxxxxxxx
+xppppppppppppxppppppppppppx
+xpxxxxpxxxxxpxpxxxxxpxxxxpx
+xPxxxxpxxxxxpxpxxxxxpxxxxPx
+xpxxxxpxxxxxpxpxxxxxpxxxxpx
+xpppppppppppppppppppppppppx
+xpxxxxpxxpxxxxxxxpxxpxxxxpx
+xpxxxxpxxpxxxxxxxpxxpxxxxpx
+xppppppxxppppxppppxxppppppx
+xxxxxxpxxxxx x xxxxxpxxxxxx
+xxxxxxpxxxxx x xxxxxpxxxxxx
+xxxxxxpxx    G    xxpxxxxxx
+xxxxxxpxx xxxdxxx xxpxxxxxx
+xxxxxxp   xG G Gx   pxxxxxx
+xxxxxxpxx xxxxxxx xxpxxxxxx
+xxxxxxpxx         xxpxxxxxx
+xxxxxxpxxxxx x xxxxxpxxxxxx
+xxxxxxpxxxxx x xxxxxpxxxxxx
+xppppppxxppppxppppxxppppppx
+xpxxxxpxxpxxxxxxxpxxpxxxxpx
+xpxxxxpxxpxxxxxxxpxxpxxxxpx
+xppppppppppppCppppppppppppx
+xpxxxxpxxxxxpxpxxxxxpxxxxpx
+xPxxxxpxxxxxpxpxxxxxpxxxxPx
+xpxxxxpxxxxxpxpxxxxxpxxxxpx
+xppppppppppppxppppppppppppx
+xxxxxxxxxxxxxxxxxxxxxxxxxxx

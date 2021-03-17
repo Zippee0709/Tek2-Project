@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 202unsold_2019
+## File description:
+## 202unsold
+##
+
+import sys, os
+import time
+import math
+import csv
+
+def printUsage():
+    print("USAGE\n\
+\t./207demography pSize sSize p\n\n\
+DESCRIPTION\n\
+\tpSize\tsize of population\n\
+\tsSize\tsize of sample (supposed to be representative)\n\
+\tp\tpercentage of voting intentions for a specific candidate\n")
+
+class poll:
+    def __init__(self, argv):
+        self.pSize = int(sys.argv[1])
+        self.sSize = int(sys.argv[2])
+        self.p = float(sys.argv[3])
+        self.variance = 0
+        self.confidence95 = [0, 0]
+        self.confidence99 = [0, 0]
+    
+    def printResult(self):
+        print("Population size:\t {}".format(self.pSize))
+        print("Sample size:\t\t {}".format(self.sSize))
+        print("Voting intentions:\t {:.2f}%".format(self.p))
+        print("Variance:\t\t {:.6f}".format(self.variance))
+        print("95% confidence interval: [{:.2f}%; {:.2f}%]".format(self.confidence95[0], self.confidence95[1]))
+        print("99% confidence interval: [{:.2f}%; {:.2f}%]".format(self.confidence99[0], self.confidence99[1]))
+
+    def calculateVariance(self):
+        coefp = self.p / 100
+        self.variance = ((coefp * (1 - coefp)) / self.sSize) * ((self.pSize - self.sSize) / (self.pSize - 1))
+
+    def calculateConfidence95(self):
+        self.confidence95[0] = self.p - ((2 * 1.96 * math.sqrt(self.variance)) / 2 * 100)
+        self.confidence95[1] = self.p + ((2 * 1.96 * math.sqrt(self.variance)) / 2 * 100)
+
+    def calculateConfidence99(self):
+        self.confidence99[0] = self.p - ((2 * 2.58 * math.sqrt(self.variance)) / 2 * 100)
+        self.confidence99[1] = self.p + ((2 * 2.58 * math.sqrt(self.variance)) / 2 * 100)
+
+def error_gestion():
+    try :
+        pSize = int(sys.argv[1])
+        sSize = int(sys.argv[2])
+        p = float(sys.argv[3])
+        if (pSize <= 0):
+            raise ValueError("Error: The first argv need to be positive value")
+        if (sSize <= 0):
+            raise ValueError("Error: The second argv need to be positive value")
+        if (p < 0 or p > 100):
+            raise ValueError("Error: The third argv need to between 0 to 100")
+    except Exception:
+        raise ValueError("Error: Invalide argument")
+
+def main():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) == 4):
+        error_gestion()
+        data = poll(sys.argv)
+        data.calculateVariance()
+        data.calculateConfidence95()
+        data.calculateConfidence99()
+        data.printResult()
+    else:
+        raise ValueError("Error: please look -h for using 209poll")
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except (ValueError, ZeroDivisionError) as ve:
+        print(ve)
+        sys.exit(84)

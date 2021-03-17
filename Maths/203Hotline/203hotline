@@ -1,0 +1,115 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 202unsold_2019
+## File description:
+## 202unsold
+##
+
+import sys, os
+import time
+import math
+
+def printUsage():
+    print("USAGE\n\
+\t./203unsold a b\n\n\
+DESCRIPTION\n\
+\ta\tconstant computed from pas results\n\
+\tb\tconstant computed from pas results\n")
+
+def error_gestion():
+    if (len(sys.argv) == 2 and sys.argv[1].isdigit() == False):
+        raise ValueError("Error: input must be a positive number")
+    elif (len(sys.argv) == 3 and (sys.argv[1].isdigit() == False or sys.argv[2].isdigit() == False)):
+        raise ValueError("Error: input must be a positive number")
+
+def factorial(n):
+    return (math.factorial(n))
+
+def binomiale_coef(k, n):
+    return (factorial(n) // (factorial(k) * factorial(n - k)))
+
+def calc_binomiale_coef():
+    n = int(sys.argv[1])
+    k = int(sys.argv[2])
+    coef = binomiale_coef(k, n)
+    print("{}-combinations of a set of size {}:".format(k, n))
+    print(coef)
+
+def calc_second_by_hours(hour):
+    return (hour * 60 * 60)
+
+def calc_binomiale_law(d):
+    print("Binomial distribution:")
+    p = d / calc_second_by_hours(8)
+    k = 3500
+    count = 5
+    overload = 0.0
+    begin = time.time()
+
+    for i in range(0, 51):
+        print("p = ", p)
+        res = binomiale_coef(i, k) * (pow(p, i)) * pow((1 - p), (k - i))
+        if (i <= 25 and res > 0):
+            overload += res
+        print("{} -> {:.3f}".format(i, res), sep="", end="")
+        count -= 1
+        if (count == 0 or i == 50):
+            count = 5
+            print("")
+        else:
+            print("", end="\t")
+    end = time.time()
+    print("Overload: {:.1f}%".format((1 - overload) * 100))
+    print("Computation time: {:.2f} ms".format((end - begin) * 100))
+
+def calc_poisson_law(d):
+    print("Poisson distribution:")
+    p = d / calc_second_by_hours(8)
+    nb_event = 3500 * p
+    count = 5
+    begin = time.time()
+    overload = 0
+
+    for i in range(0, 51):
+        res = math.exp(nb_event * (-1)) * pow(nb_event, i) / factorial(i)
+        if (i <= 25 and res > 0):
+            overload += res
+        print("{} -> {:.3f}".format(i, res), sep="", end="")
+        count -= 1
+        if (count == 0 or i == 50):
+            count = 5
+            print("")
+        else:
+            print("", end="\t")
+    end = time.time()
+    print("Overload: {:.1f}%".format((1 - overload) * 100))
+    print("Computation time: {:.2f} ms".format((end - begin) * 100))
+
+def calc_binomiale_and_poisson_law():
+    d = int(sys.argv[1])
+    calc_binomiale_law(d)
+    print("")
+    calc_poisson_law(d)
+
+def start_hotline():
+    error_gestion()
+    if (len(sys.argv) == 2):
+        calc_binomiale_and_poisson_law()
+    elif (len(sys.argv) == 3):
+        calc_binomiale_coef()
+
+def main():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) == 2 or len(sys.argv) == 3):
+        start_hotline()
+    else:
+        raise ValueError("Error: please look -h for using 203hotline")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except ValueError as ve:
+        print(ve)
+        sys.exit(84)

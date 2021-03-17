@@ -1,0 +1,175 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 202unsold_2019
+## File description:
+## 202unsold
+##
+
+import sys, os
+import time
+import math
+import copy
+
+def printUsage():
+    print("USAGE\n\
+\t./208dowels 00 01 02 03 04 05 06 07 08\n\n\
+DESCRIPTION\n\
+\t01\tsize of the observed class\n")
+
+def eprint(line):
+    print(line, file=sys.stderr)
+
+class Dowels:
+    def __init__(self, values):
+        self.values = copy.copy(values)
+        self.dynamicValues = values
+        self.dictionaryClass = {}
+        self.Tx = []
+
+    def addClass(self, i):
+        res = 0
+        firstCounter = i
+        if (i == 0):
+            while (res < 10):
+                res += self.dynamicValues[i]
+                i += 1
+            i -= 1
+            for j in range(firstCounter, i + 1):
+                self.dynamicValues[j] = res
+            self.dictionaryClass[str(firstCounter) + "-" + str(i)] = res
+        elif (i == len(self.dynamicValues) or i + 1 == len(self.dynamicValues)):
+            while (res < 10):
+                res += self.dynamicValues[i]
+                i -= 1
+            i += 1
+            for j in range(i, firstCounter):
+                self.dynamicValues[j] = res
+                self.dictionaryClass.popitem()
+            self.dictionaryClass[str(i) + "-" + str(firstCounter)] = res
+        elif (self.dynamicValues[i] + self.dynamicValues[i - 1] > self.dynamicValues[i] + self.dynamicValues[i + 1]):
+            while (res < 10 and i + 1 != len(self.dynamicValues)):
+                res += self.dynamicValues[i]
+                i += 1
+            i -= 1
+            if (res < 10 and i + 1 == len(self.dynamicValues)):
+                res = self.values[i]
+            for j in range(firstCounter, i + 1):
+                self.dynamicValues[j] = res
+            self.dictionaryClass[str(firstCounter) + "-" + str(i)] = res
+        elif (self.dynamicValues[i] + self.dynamicValues[i - 1] <= self.dynamicValues[i] + self.dynamicValues[i + 1]):
+            while (res < 10):
+                res += self.dynamicValues[i]
+                i -= 1
+            i += 1
+            for j in range(i, firstCounter):
+                self.dynamicValues[j] = res
+            if (str(i) in list(self.dictionaryClass.keys())[-1] or str(firstCounter) in list(self.dictionaryClass.keys())[-1]):
+                del self.dictionaryClass[list(self.dictionaryClass.keys())[-1]]
+            self.dictionaryClass[str(i) + "-" + str(firstCounter)] = res
+
+    def fusionClass(self):
+        for i in range(len(self.dynamicValues)):
+            if (self.dynamicValues[i] < 10):
+                self.addClass(i)
+            elif (i == 0):
+                self.dictionaryClass[str(i)] = self.values[0]
+            elif (len(list(self.dictionaryClass.keys())[-1]) == 1 \
+                or i < int(list(self.dictionaryClass.keys())[-1][0]) \
+                or i > int(list(self.dictionaryClass.keys())[-1][2])): ## NOTE : bourbier, mais check si notre i est fusionné, si c'est pas fusionée on peut le use
+                    self.dictionaryClass[str(i)] = self.values[i]
+        if (len(list(self.dictionaryClass.keys())[-1]) == 1):
+            self.dictionaryClass["8+"] = self.dictionaryClass.pop(list(self.dictionaryClass.keys())[-1])
+        else:
+            self.dictionaryClass[list(self.dictionaryClass.keys())[-1][0] + "+"] = self.dictionaryClass[list(self.dictionaryClass.keys())[-1]]
+            self.dictionaryClass.pop(list(self.dictionaryClass.keys())[-2])
+
+    def factorial(self, n):
+        res = 1
+        for i in range(1, n + 1):
+            res *= i
+        return res
+    
+    def binomialCoefficiant(self, n, k):
+        return self.factorial(n) / (self.factorial(k) * self.factorial(n-k))
+
+    def calculTheorySize(self):
+        counter = 0
+        p = 0
+        quantitySum = 0
+        Tx = {}
+        for value in self.values:
+            p += value * counter
+            counter += 1
+        p /= 100 * 100
+        for i in range(9):
+            Tx[i] = round(100 * self.binomialCoefficiant(100, i) * (p ** i) * ((1 - p) ** (100 - i)), 1)
+        counter = 0
+        for key, value in self.dictionaryClass.items():
+            res = 0
+            if (len(key) == 3):
+                for i in range(int(key[0]), int(key[2]) + 1):
+                    res += Tx[i]
+                    counter += 1
+            elif (len(key) == 2):
+                for i in range(int(key[0]), 9):
+                    res += Tx[i]
+                    counter += 1
+            else:
+                res += Tx[counter]
+                counter += 1
+            self.Tx.append(res)
+        txRes = 0
+        for v in self.Tx[:-1]:
+            txRes += v
+        self.Tx.pop()
+        self.Tx.append(round(100 - txRes, 1))
+
+    def printResultat(self):
+        print("  x\t|", end='')
+        for value in self.dictionaryClass:
+            print(" " + value + "\t|", end ='')
+        print(" Total")
+        print(" Ox\t|", end='')
+        for value in self.dictionaryClass:
+            print(" %d\t|" % self.dictionaryClass[value], end ='')
+        print(" 100")
+        print(" Tx\t|", end='')
+        for value in self.Tx:
+            print(" %.1f\t|" % value, end ='')
+        print(" 100")
+
+def putArgumentInList(valueList):
+    total = 0
+    iterArgv = iter(sys.argv)
+    next(iterArgv)
+    for value in iterArgv:
+        try:
+            valueList.append(int(value))
+            total += int(value)
+        except:
+            raise ValueError("Error: the argument need to be an integer")
+    if (total != 100):
+        raise ValueError("Error: the total of the argument need to be 100")
+
+def main():
+    toPutIn = False
+    valueList = []
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) == 10):
+        putArgumentInList(valueList)
+        dowels = Dowels(valueList)
+        dowels.fusionClass()
+        dowels.calculTheorySize()
+        dowels.printResultat()
+    else:
+        raise ValueError("Error: please look -h for using 206eutrinos")
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except (ValueError, ZeroDivisionError) as ve:
+        print(ve)
+        sys.exit(84)

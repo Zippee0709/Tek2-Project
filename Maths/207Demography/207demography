@@ -1,0 +1,268 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 202unsold_2019
+## File description:
+## 202unsold
+##
+
+import sys, os
+import time
+import math
+import csv
+import numpy as np
+
+def printUsage():
+    print("USAGE\n\
+\t./207demography code [...]\n\n\
+DESCRIPTION\n\
+\tcode\tcountry code")
+
+def eprint(line):
+    print(line, file=sys.stderr)
+
+class Demography:
+    def __init__(self, countryCodeList):
+        countryCodeList.pop(0)
+        self.countryCodeList = countryCodeList
+        self.countryName = list()
+        self.countryInformationList = dict()
+
+    def readCsvFile(self):
+        try:
+            reader = csv.reader(open('207demography_data.csv', 'r'), delimiter=";")
+            self.csvInfo = next(reader)
+            for countryCode in self.countryCodeList:
+                reader = csv.reader(open('207demography_data.csv', 'r'), delimiter=";")
+                for data in reader:
+                    tempDictionnary = {}
+                    if (countryCode == data[1]):
+                        counter = 0
+                        self.countryName.append(data[0])
+                        for info in self.csvInfo:
+                            tempDictionnary[info] = data[counter]
+                            counter += 1
+                        self.countryInformationList[countryCode] = tempDictionnary
+        except Exception:
+            raise ValueError("Error: the file 207demography_data.csv is not found")
+    
+    def errorGestion(self):
+        if (len(self.countryCodeList) != len(self.countryInformationList)):
+            raise ValueError("Error: The country was not found in the list")
+
+    def printCountryName(self):
+        self.countryName.sort()
+        print("Country: ", end="")
+        i = 0
+        while (i <= len(self.countryName) - 1):
+            if (i == len(self.countryName) - 1):
+                print("{}".format(self.countryName[i]))
+            else:
+                print("{}".format(self.countryName[i]), end=", ")
+            i += 1
+
+    def calculLinearFitOne(self):
+        a = 0
+        b = 0
+        for countryCode in self.countryCodeList:
+            x = 0
+            y = 0
+            xsquare = 0
+            xymultiple = 0
+            n = 0
+            for countryInformation in self.countryInformationList[countryCode]:
+                if countryInformation == "Country Code" or countryInformation == "Country Name":
+                    continue
+                x += int(countryInformation)
+                y += int(self.countryInformationList[countryCode][countryInformation])
+                xsquare += int(countryInformation) ** 2
+                xymultiple += int(countryInformation) * int(self.countryInformationList[countryCode][countryInformation])
+                n += 1
+            a += (n * xymultiple - x * y) / (n * xsquare - math.pow(x, 2))
+            b += (y * xsquare - x * xymultiple) / (n * xsquare - math.pow(x, 2))
+        self.printCountryName()
+        print("Fit1")
+        print("\tY = {:.2f} X ".format((a / 1000000)), end="")
+        if (b > 0):
+            print("+", end="")
+        else:
+            print("-", end="")
+        print(" {:.2f}".format((abs(b) / 1000000)))
+        rmsd = self.rootMeanSquareDeviationOne(a, b)
+        print("\tRoot-mean-square deviation: {:.2f}".format(rmsd / 1000000))
+        self.calculatePopulationIn2050One(a, b)
+        return (a, b, rmsd)
+
+    def calculateLinearFitTwo(self):
+        a = 0
+        b = 0
+        x = 0
+        y = 0
+        xsquare = 0
+        xymultiple = 0
+        n = 0
+        for countryCode in self.countryCodeList:
+            n = 0
+            y = 0
+            xsquare = 0
+            for countryInformation in self.countryInformationList[countryCode]:
+                if countryInformation == "Country Code" or countryInformation == "Country Name":
+                    continue
+                x += int(self.countryInformationList[countryCode][countryInformation])
+                y += int(countryInformation)
+                xsquare += self.sumPopulationPerYears(int(countryInformation)) ** 2
+                xymultiple += int(countryInformation) * int(self.countryInformationList[countryCode][countryInformation])
+                n += 1
+        a = ((n * xymultiple - x * y) / (n * xsquare - math.pow(x, 2)))
+        b = ((y * xsquare - x * xymultiple) / (n * xsquare - math.pow(x, 2)))
+        print("Fit2")
+        print("\tX = {:.2f} Y ".format((a * 1000000)), end="")
+        if (b > 0):
+            print("+", end="")
+        else:
+            print("-", end="")
+        print(" {:.2f}".format((abs(b))))
+        rmsd = self.rootMeanSquareDeviationTwo(a, b)
+        print("\tRoot-mean-square deviation: {:.2f}".format(rmsd / 1000000))
+        self.calculatePopulationIn2050Two(a, b)
+        return (a, b, rmsd)
+
+    def sumPopulationPerYears(self, years):
+        sum = 0
+        for countryCode in self.countryCodeList:
+            for countryInformation in self.countryInformationList[countryCode]:
+                if countryInformation == "Country Code" or countryInformation == "Country Name":
+                    continue
+                actualYears = int(countryInformation)
+                if (actualYears == years):
+                    sum += int(self.countryInformationList[countryCode][countryInformation])
+        return (sum)
+
+    def rootMeanSquareDeviationOne(self, a, b):
+        population = 0
+        years = 1960
+        residus = 0
+        n = 0
+        while (years <= 2017):
+            population = self.sumPopulationPerYears(years)
+            residus += (population - (a * years + b)) ** 2
+            n += 1
+            years += 1
+        rootMeanSquareDeviation = math.sqrt(residus / n)
+        return rootMeanSquareDeviation
+
+    def rootMeanSquareDeviationTwo(self, a, b):
+        population = 0
+        years = 1960
+        residus = 0
+        n = 0
+        while (years <= 2017):
+            population = self.sumPopulationPerYears(years)
+            residus += (population - ((-(b) + years) / a)) ** 2
+            n += 1
+            years += 1
+        rootMeanSquareDeviation = math.sqrt(residus / n)
+        return rootMeanSquareDeviation
+
+    def calculatePopulationIn2050One(self, a, b):
+        res = (a * 2050 + b) / 1000000
+        print("\tPopulation in 2050: {:.2f}".format(res))
+
+    def calculatePopulationIn2050Two(self, a, b):
+        res = ((2050 - b) / a / 1000000)
+        print("\tPopulation in 2050: {:.2f}".format(res))
+
+    def calculateCorrelation(self, x1, y1, rmsd1, x2, y2, rmsd2):
+        years = 1960
+        residus = 0
+        population = 0
+        n = 0
+        while (years <= 2017) :
+            population = self.sumPopulationPerYears(years)
+            residus += (population - (x1 * years + y1)) * (population - ((-(y2) + years) / x2))
+            n += 1
+            years += 1
+        print("residu = ", residus)
+        correlation = (residus / n) / (rmsd1 * rmsd2)
+        print("Correlation: {:.4f}".format(correlation))
+
+    def calculateVariance(self):
+        year = 1960
+        total = 2017 - 1960 + 1
+        total_of_population = 0
+        total_of_years = 0
+        mean_of_population = 0
+        mean_of_years = 0
+        while (year <= 2017):
+            total_of_population += self.sumPopulationPerYears(year)        
+            total_of_years += year
+            year += 1
+        year = 1960
+        mean_of_population = total_of_population / total       
+        mean_of_years = total_of_years / total
+        variance_population = 0
+        variance_year = 0
+        while (year <= 2017):
+            variance_population += (self.sumPopulationPerYears(year) - mean_of_population) ** 2                
+            variance_year += (year - mean_of_years) ** 2
+            year += 1
+        variance_population = variance_population / (total - 1)
+        variance_year = variance_year / (total - 1)
+        print("mean of year = ", mean_of_years)
+        print("variance of year = ", variance_year)
+        return (variance_population, variance_year)
+
+    def calculateCovariance(self, rmsd1, rmsd2):
+        year = 1960
+        r = 0
+        n = 0
+        total = 2017 - 1960 + 1
+        total_of_population = 0
+        total_of_years = 0
+        mean_of_population = 0
+        mean_of_years = 0
+        while (year <= 2017):
+            total_of_population += self.sumPopulationPerYears(year)        
+            total_of_years += year
+            year += 1
+        year = 1960
+        mean_of_population = total_of_population / total       
+        mean_of_years = total_of_years / total       
+        while (year <= 2017):
+            r += (self.sumPopulationPerYears(year) - mean_of_population) * (year - mean_of_years)
+            print("sum of population = ", self.sumPopulationPerYears(year))
+            print("mean of population = ", mean_of_population)
+            print("r = ", r)
+            year += 1
+            n += 1
+        o1, o2 = self.calculateVariance()
+        o1 = math.sqrt(o1)
+        o2 = math.sqrt(o2)
+        print("o1 =", o1)
+        print("o1 =", o2)
+        print("r == ",r)
+        r = (r / n - 1) / (rmsd1 * rmsd2)
+        print("r == ", r)
+
+def main():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) >= 2):
+        demo = Demography(sys.argv)
+        demo.readCsvFile()
+        demo.errorGestion()
+        x1, y1, rmsd1 = demo.calculLinearFitOne()
+        x2, y2, rmsd2 = demo.calculateLinearFitTwo()
+        demo.calculateCorrelation(x1, y1, rmsd1, x2, y2, rmsd2)
+        demo.calculateCovariance(rmsd1, rmsd2)
+
+    else:
+        raise ValueError("Error: please look -h for using 207demography")
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except (ValueError, ZeroDivisionError) as ve:
+        print(ve)
+        sys.exit(84)

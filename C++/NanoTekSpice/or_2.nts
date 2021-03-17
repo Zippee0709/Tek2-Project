@@ -1,0 +1,13 @@
+# Admiral Business Machines 1954-2042
+# One or gate
+
+.chipsets:
+input a
+input b
+output Output
+4071 OrLogicalGate
+
+.links:
+a:1 OrLogicalGate:1
+b:1 OrLogicalGate:2
+Output:1 OrLogicalGate:3

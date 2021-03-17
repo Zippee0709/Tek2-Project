@@ -1,0 +1,86 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 202unsold_2019
+## File description:
+## 202unsold
+##
+
+import sys, os
+import time
+import math
+
+def printUsage():
+    print("USAGE\n\
+\t./206neutrinos n a h sd\n\n\
+DESCRIPTION\n\
+\tn\tnumber of values\n\
+\ta\tarithmetic mean\n\
+\th\tharmonic mean\n\
+\tsd\tstandard deviation")
+
+def eprint(line):
+    print(line, file=sys.stderr)
+
+class Neutrinos:
+    def __init__(self, numberOfValues, arithmeticMean, harmonicMean, standardDeviation):
+        try: 
+            self.numberOfValues = int(numberOfValues)
+            self.arithmeticMean = int(arithmeticMean)
+            self.harmonicMean = int(harmonicMean)
+            self.standardDeviation = int(standardDeviation)
+        except Exception:
+            raise ValueError("Error: argument need to be an integer")
+
+    def calculRootMeanSquare(self):
+        self.rootMeanSquare = math.sqrt((((self.standardDeviation ** 2 + self.arithmeticMean ** 2) * self.numberOfValues) + self.nextValue ** 2) / (self.numberOfValues + 1))
+        # moyenneDesCarres = variance + self.arithmeticMean ** 2
+        # sommeDesCarres = moyenneDesCarres * self.numberOfValues
+        # nouvelleSommesDesCarres = sommeDesCarres + self.nextValue ** 2
+        # nouvelleMoyenneDesCarres = nouvelleSommesDesCarres / (self.numberOfValues + 1)
+        # self.rootMeanSquare = math.sqrt(nouvelleMoyenneDesCarres)
+
+    def calculNextValue(self, line):
+        try:
+            self.nextValue = int(line)
+            self.calculRootMeanSquare()
+            self.arithmeticMean = ((self.arithmeticMean * self.numberOfValues) + self.nextValue) / (self.numberOfValues + 1)
+            self.harmonicMean = (self.numberOfValues + 1) / ((self.numberOfValues / self.harmonicMean) + (1 / self.nextValue))
+            self.standardDeviation = math.sqrt(self.rootMeanSquare ** 2 - self.arithmeticMean ** 2)
+            self.numberOfValues += 1
+            print("\tNumber of values:\t%d" % self.numberOfValues)
+            print("\tStandard deviation:\t%.2f" % self.standardDeviation)
+            print("\tArithmetic mean:\t%.2f" % self.arithmeticMean)
+            print("\tRoot mean square:\t%.2f" % self.rootMeanSquare)
+            print("\tHarmonic mean:\t\t%.2f" % self.harmonicMean)
+            return False
+        except Exception:
+            eprint("Error: the input need to be a number")
+            return True
+
+    def startLoop(self):
+        print("Enter next value: ", end="")
+        sys.stdout.flush() # NOTE : flush pour pouvoir affiché le print avant d'avoir le stdin 
+        for line in sys.stdin:
+            if line.rstrip() == "END":
+                break
+            self.calculNextValue(line)
+            print("Enter next value: ", end="")
+            sys.stdout.flush() # NOTE : flush pour pouvoir affiché le print avant d'avoir le stdin 
+
+def main():
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        printUsage()
+    elif (len(sys.argv) == 5):
+        neutrinos = Neutrinos(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        neutrinos.startLoop()
+    else:
+        raise ValueError("Error: please look -h for using 206eutrinos")
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except (ValueError, ZeroDivisionError) as ve:
+        print(ve)
+        sys.exit(84)

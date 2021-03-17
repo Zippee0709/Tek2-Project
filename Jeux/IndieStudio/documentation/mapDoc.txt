@@ -1,0 +1,13 @@
+Entities on Map :
+
+u = unbreakable wall
+c = catle
+b = bomb
+e = explosion
+
+Powerups :
+
+B = bomb + 1
+R = range + 1
+S = speed + 1
+P = passWall
